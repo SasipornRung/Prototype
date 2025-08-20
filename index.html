@@ -293,26 +293,22 @@ window.addEventListener('load', () => {
   lensBtns.investor?.addEventListener('click', ()=>applyLens('investor'));
   lensBtns.renovator?.addEventListener('click', ()=>applyLens('renovator'));
 
-  // Boot
+// Boot
   const m = initMap();
   if (!m) log('Map failed to init');
   applyLens(localStorage.getItem('pd_lens') || 'tenant');
 });
- // 👇 Quick link to Investor Lens (auto-insert)
-document.addEventListener('DOMContentLoaded', () => {
-  // สร้างปุ่มใหม่
-  const link = document.createElement('a');
-  link.href = 'index_investor.html?v=10';
-  link.textContent = 'ไปหน้า “นักลงทุน (ใหม่)”';
-  link.style.cssText = `
-    display:inline-block;margin:10px 0 0; padding:10px 14px;
-    border-radius:999px; font-weight:700; text-decoration:none;
-    background:#DDF3EE; color:#14594F; border:2px solid transparent;
-  `;
 
-  // หาที่วางปุ่ม (ถ้าไม่มี lens-bar ก็วางที่ container)
-  const lensBar = document.querySelector('.lens-bar') || document.querySelector('.container');
-  (lensBar || document.body).appendChild(link);
+// --- Redirect ปุ่ม “นักลงทุน” ไปหน้าใหม่ ---
+document.addEventListener('DOMContentLoaded', () => {
+  const investorBtn = [...document.querySelectorAll('a,button')]
+    .find(el => /นักลงทุน/.test((el.textContent || '').trim()));
+  if (investorBtn) {
+    investorBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      location.href = 'index_investor.html?v=20';
+    });
+  }
 });
 </script>
 </body>
