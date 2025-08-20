@@ -298,9 +298,9 @@ window.addEventListener('load', () => {
   if (!m) log('Map failed to init');
   applyLens(localStorage.getItem('pd_lens') || 'tenant');
 });
-  // 👇 Quick link to Investor Lens (auto-insert)
+ // 👇 Quick link to Investor Lens (auto-insert)
 document.addEventListener('DOMContentLoaded', () => {
-  // สร้างปุ่มใหม่แบบง่าย ๆ
+  // สร้างปุ่มใหม่
   const link = document.createElement('a');
   link.href = 'index_investor.html?v=10';
   link.textContent = 'ไปหน้า “นักลงทุน (ใหม่)”';
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     background:#DDF3EE; color:#14594F; border:2px solid transparent;
   `;
 
-  // หาที่วางปุ่ม
+  // หาที่วางปุ่ม (ถ้าไม่มี lens-bar ก็วางที่ container)
   const lensBar = document.querySelector('.lens-bar') || document.querySelector('.container');
   (lensBar || document.body).appendChild(link);
 });
