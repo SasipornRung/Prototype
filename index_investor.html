@@ -77,19 +77,38 @@
   }
   .dd-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(31,111,99,.35)}
   .dd-list{
-    position:absolute;left:0;right:0;top:100%;margin-top:8px;
-    list-style:none;margin-bottom:0;padding:6px;border-radius:12px;max-height:260px;overflow:auto;
-    border:1px solid rgba(255,255,255,.12);background:#0F2E29;box-shadow:0 10px 24px rgba(0,0,0,.35);
-    display:none;z-index:30;
-  }
-  .dd.open .dd-list{display:block}
-  .dd-list li{
-    padding:10px 12px;border-radius:8px;cursor:pointer;color:#EAF3F1;user-select:none
-  }
-  .dd-list li:nth-child(odd){background:rgba(255,255,255,.04)}
-  .dd-list li:nth-child(even){background:rgba(255,255,255,.08)}
-  .dd-list li[aria-selected="true"]{background:#15574E;color:#fff}
-  .dd-list li:hover{background:#1F6F63;color:#fff}
+   .dd-list {
+  position:absolute;
+  left:0; right:0; top:100%;
+  margin-top:8px;
+  list-style:none; margin-bottom:0; padding:6px;
+  border-radius:12px; max-height:260px; overflow:auto;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;              /* 🔥 พื้นหลังขาว */
+  box-shadow:0 10px 24px rgba(0,0,0,.15);
+  display:none;
+  z-index:9999;
+}
+
+.dd-list li {
+  padding:10px 14px;
+  cursor:pointer;
+  border-radius:6px;
+  color:var(--green);          /* 🔥 ตัวหนังสือเขียว */
+  background:#fff;             /* พื้นหลังขาว */
+  transition:background .2s, color .2s;
+}
+
+/* hover หรือ active */
+.dd-list li:hover {
+  background:var(--green-100); /* เขียวอ่อนตอน hover */
+  color:var(--green-700);      /* เขียวเข้ม */
+}
+
+.dd-list li.active {
+  background:var(--green);     /* เขียวเข้ม */
+  color:#fff;                  /* ตัวอักษรขาว */
+}
 </style>
 </head>
 <body>
