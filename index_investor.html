@@ -22,13 +22,15 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--ink);
-       background:linear-gradient(180deg,#0C2420,var(--bg))}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:var(--ink);
+    background: linear-gradient(180deg, #0C2420, var(--bg));
+  }
   .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 80px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#EAF3F1;margin-top:8px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#2C8D7C,#14594F);
-        display:grid;place-items:center;box-shadow:var(--shadow);color:#fff;font-weight:800}
+  .topbar{display:flex;align-items:center;gap:12px;color:#EAF3F1;margin-top:8px}
+  .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#2C8D7C,#14594F);display:grid;place-items:center;box-shadow:var(--shadow);color:#fff;font-weight:800}
   h1{margin:0;font-size:28px;letter-spacing:.5px;color:#EAF3F1}
   .muted{color:#97b5b0}
 
@@ -37,11 +39,10 @@
           border-radius:16px;padding:14px;color:#EAF3F1}
   .picker-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
   .controls{display:flex;gap:8px;flex-wrap:wrap}
-  .select, .btn{
-    appearance:none;border-radius:999px;padding:10px 14px;border:2px solid #9FD3C9;background:transparent;
-    color:#EAF3F1;font-weight:700;cursor:pointer
+  .btn{
+    appearance:none;border-radius:999px;padding:10px 14px;border:2px solid #9FD3C9;background:#DDF3EE;
+    color:#14594F;font-weight:700;cursor:pointer
   }
-  .btn.primary{background:#DDF3EE;color:#14594F;border-color:transparent}
   #map{width:100%;height:420px;border-radius:14px;margin-top:12px;overflow:hidden}
 
   /* STEP 2: Dashboard */
@@ -59,44 +60,70 @@
   .card h3{margin:0;font-size:16px;color:var(--ink)}
   .card small{color:var(--muted)}
   .card .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
   canvas{width:100% !important;height:180px !important}
   .mini-map{flex:1;min-height:160px;border-radius:12px;background:#E8EEED;display:grid;place-items:center;color:#567;text-align:center}
   .table{width:100%;border-collapse:collapse;font-size:14px}
   .table th,.table td{border-bottom:1px solid #EDF2F1;padding:8px 6px;text-align:left}
   .table th{color:#567;font-weight:700}
   .foot{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:12px;margin-top:12px;color:#6A7D80;font-size:13px}
-
-  /* simple “section show/hide” */
   .hidden{display:none}
+
+  /* ===== Custom Dropdown (Area) ===== */
+  .dd{position:relative;display:inline-block;min-width:220px}
+  .dd-btn{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    width:100%;padding:10px 14px;border-radius:999px;border:2px solid #9FD3C9;
+    background:transparent;color:#EAF3F1;font-weight:700;cursor:pointer
+  }
+  .dd-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(31,111,99,.35)}
+  .dd-list{
+    position:absolute;left:0;right:0;top:100%;margin-top:8px;
+    list-style:none;margin-bottom:0;padding:6px;border-radius:12px;max-height:260px;overflow:auto;
+    border:1px solid rgba(255,255,255,.12);background:#0F2E29;box-shadow:0 10px 24px rgba(0,0,0,.35);
+    display:none;z-index:30;
+  }
+  .dd.open .dd-list{display:block}
+  .dd-list li{
+    padding:10px 12px;border-radius:8px;cursor:pointer;color:#EAF3F1;user-select:none
+  }
+  .dd-list li:nth-child(odd){background:rgba(255,255,255,.04)}
+  .dd-list li:nth-child(even){background:rgba(255,255,255,.08)}
+  .dd-list li[aria-selected="true"]{background:#15574E;color:#fff}
+  .dd-list li:hover{background:#1F6F63;color:#fff}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="brand">
-      <div class="logo">P</div>
-      <div>
-        <h1>PropDecoded • Investor Lens</h1>
-        <div class="muted">เลือกย่านจาก Heat Map เพื่อดูข้อมูลเชิงลึก</div>
-      </div>
+    <div class="logo">P</div>
+    <div>
+      <h1>PropDecoded • Investor Lens</h1>
+      <div class="muted">เลือกย่านจาก Heat Map เพื่อดูข้อมูลเชิงลึก</div>
     </div>
   </div>
 
   <!-- STEP 1: AREA PICKER -->
   <section id="areaPicker" class="picker">
     <div class="picker-head">
-      <div class="muted">Heat Map ด้านล่างแสดง “ความหนาแน่นกิจกรรมตลาดโดยประมาณ” (ตัวอย่าง)</div>
+      <div class="muted">Heat Map แสดง “ความหนาแน่นกิจกรรมตลาดโดยประมาณ” (ตัวอย่าง)</div>
       <div class="controls">
-        <select id="areaSelect" class="select" aria-label="เลือกย่าน">
-          <option value="sukhumvit">Sukhumvit</option>
-          <option value="ekkamai">Ekkamai</option>
-          <option value="thonglor">Thonglor</option>
-          <option value="phromphong">Phrom Phong</option>
-          <option value="onnut">On Nut</option>
-          <option value="ratchada">Ratchada</option>
-        </select>
-        <button id="goBtn" class="btn primary">ดูข้อมูลย่านนี้</button>
+        <!-- Custom dropdown -->
+        <div class="dd" id="areaDropdown" data-value="sukhumvit">
+          <button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="dd-label" id="ddLabel">Sukhumvit</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+          <ul class="dd-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="sukhumvit" aria-selected="true">Sukhumvit</li>
+            <li role="option" data-value="ekkamai">Ekkamai</li>
+            <li role="option" data-value="thonglor">Thonglor</li>
+            <li role="option" data-value="phromphong">Phrom Phong</li>
+            <li role="option" data-value="onnut">On Nut</li>
+            <li role="option" data-value="ratchada">Ratchada</li>
+          </ul>
+        </div>
+
+        <button id="goBtn" class="btn">ดูข้อมูลย่านนี้</button>
       </div>
     </div>
     <div id="map" role="img" aria-label="Heat Map of Bangkok areas"></div>
@@ -189,12 +216,10 @@
 
 <script>
 // ----------------- DEMO DATA -----------------
-const AREAS = {
+  const AREAS = {
   sukhumvit:{
     center:[13.7336,100.5760],
-    heat:[
-      [13.732,100.572,0.9],[13.735,100.581,0.8],[13.728,100.583,0.7],[13.739,100.575,0.65]
-    ],
+    heat:[[13.732,100.572,0.9],[13.735,100.581,0.8],[13.728,100.583,0.7],[13.739,100.575,0.65]],
     investorMeta:{ meter:0.72, yield:5.6, cap:4.2, resilience:"ดี" },
     takeup:{ years:Array.from({length:10},(_,i)=>2015+i), rate:[64,62,65,66,69,71,68,72,74,76]},
     absorption:[320,380,420,450,520,610,680,720,650,600],
@@ -209,21 +234,17 @@ const AREAS = {
       {area:"Phrom Phong", price:165000, yield:5.3, cap:4.0},
       {area:"On Nut", price:125000, yield:5.8, cap:4.4}
     ]
-},
-  ekkamai:{ center:[13.7292,100.5902],
-    heat:[[13.729,100.592,0.9],[13.727,100.586,0.6],[13.731,100.589,0.7]],
-    // for demo reuse sukhumvit curves with tiny tweaks
-    ...this, // ignored, just a separator
   },
+  ekkamai:{ center:[13.7292,100.5902], heat:[[13.729,100.592,0.9],[13.727,100.586,0.6],[13.731,100.589,0.7]] },
   thonglor:{ center:[13.7337,100.5833], heat:[[13.734,100.582,0.8],[13.732,100.585,0.7]] },
   phromphong:{ center:[13.7308,100.5711], heat:[[13.732,100.571,0.75],[13.729,100.572,0.6]] },
   onnut:{ center:[13.7057,100.6069], heat:[[13.706,100.607,0.85],[13.704,100.604,0.5]] },
   ratchada:{ center:[13.7682,100.5736], heat:[[13.766,100.573,0.8],[13.770,100.575,0.65],[13.765,100.568,0.55]] }
 };
-// fill simple fallbacks for other areas (reuse sukhumvit’s series + slight changes)
+// copy numbers from sukhumvit to others with light tweaks
 ["ekkamai","thonglor","phromphong","onnut","ratchada"].forEach(k=>{
   const base = JSON.parse(JSON.stringify(AREAS.sukhumvit));
-  const tweak = { // small deltas
+  const tweak = {
     meter: Math.max(0.4, Math.min(0.9, 0.65 + (Math.random()*0.1-0.05))),
     yield: +(5.3 + (Math.random()*0.6)).toFixed(1),
     cap: +(3.8 + (Math.random()*0.6)).toFixed(1),
@@ -244,7 +265,6 @@ const AREAS = {
 
 // ----------------- MAP (STEP 1) -----------------
 let map, heatLayer, currentAreaKey="sukhumvit";
-const areaSelect = document.getElementById('areaSelect');
 
 function initMap(){
   map = L.map('map',{zoomControl:false, attributionControl:false}).setView(AREAS.sukhumvit.center, 13);
@@ -257,25 +277,64 @@ function updateHeat(key){
   map.setView(a.center, 13);
   heatLayer.setLatLngs(a.heat);
 }
-areaSelect.addEventListener('change', e => updateHeat(e.target.value));
-document.getElementById('goBtn').addEventListener('click', ()=> showDashboard(currentAreaKey));
-
 function goBack(){
   document.getElementById('dashboard').classList.add('hidden');
   document.getElementById('areaPicker').classList.remove('hidden');
   setTimeout(()=>map.invalidateSize(), 50);
+  ----------------- Custom Dropdown -----------------
+function initAreaDropdown(){
+  const root = document.getElementById('areaDropdown');
+  const btn  = root.querySelector('.dd-btn');
+  const list = root.querySelector('.dd-list');
+  const label= root.querySelector('#ddLabel');
+
+  let value = root.dataset.value || 'sukhumvit';
+
+  const setValue = (val) => {
+    value = val;
+    root.dataset.value = val;
+    const active = [...list.children].find(li => li.dataset.value===val);
+    [...list.children].forEach(li => li.setAttribute('aria-selected','false'));
+    if (active){ active.setAttribute('aria-selected','true'); label.textContent = active.textContent.trim(); }
+    if (typeof root.onChange === 'function') root.onChange(val);
+  };
+
+  const open = () => { root.classList.add('open'); btn.setAttribute('aria-expanded','true'); list.focus(); };
+  const close= () => { root.classList.remove('open'); btn.setAttribute('aria-expanded','false'); };
+
+  btn.addEventListener('click', () => root.classList.contains('open') ? close() : open());
+  list.addEventListener('click', (e)=>{
+    const li = e.target.closest('li[role="option"]'); if(!li) return;
+    setValue(li.dataset.value); close();
+  });
+  list.addEventListener('keydown', (e)=>{
+    const items = [...list.querySelectorAll('li[role="option"]')];
+    const idx = items.findIndex(li => li.getAttribute('aria-selected')==='true');
+    if (e.key==='Escape'){ close(); btn.focus(); }
+    if (e.key==='ArrowDown'){ e.preventDefault(); (items[idx+1]||items[0]).click(); }
+    if (e.key==='ArrowUp'){ e.preventDefault(); (items[idx-1]||items.at(-1)).click(); }
+    if (e.key==='Enter'){ e.preventDefault(); close(); btn.focus(); }
+  });
+  document.addEventListener('click', (e)=>{ if(!root.contains(e.target)) close(); });
+
+  setValue(value);
+
+  return {
+    get value(){ return value; },
+    set value(v){ setValue(v); },
+    onChange: (fn)=> (root.onChange = fn)
+  };
 }
-  // ----------------- DASHBOARD (STEP 2) -----------------
+
+// ----------------- DASHBOARD (STEP 2) -----------------
 let CH = {}; // chart refs
 function showDashboard(key){
   const a = AREAS[key];
   document.getElementById('areaPicker').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
 
-  // Fill KPI
-  document.getElementById('areaName').textContent = key
-    .replace(/^[a-z]/, m=>m.toUpperCase())
-    .replace('phrom','Phrom ');
+  document.getElementById('areaName').textContent =
+    key.replace(/^[a-z]/, m=>m.toUpperCase()).replace('phrom','Phrom ');
   document.getElementById('oppBar').style.width = (a.investorMeta.meter*100).toFixed(0)+'%';
   document.getElementById('yieldNum').textContent = a.investorMeta.yield+'%';
   document.getElementById('capNum').textContent = a.investorMeta.cap+'%';
@@ -284,7 +343,6 @@ function showDashboard(key){
   document.getElementById('launchNum').textContent = a.price.avgLaunch.toLocaleString();
   document.getElementById('resaleNum').textContent = a.price.avgResale.toLocaleString();
 
-  // Table
   const tbody = document.getElementById('benchTbody'); tbody.innerHTML='';
   a.bench.forEach(r=>{
     const tr = document.createElement('tr');
@@ -292,7 +350,6 @@ function showDashboard(key){
     tbody.appendChild(tr);
   });
 
-  // (Re)draw charts
   const make = (id, cfg)=>{
     if (CH[id]) { CH[id].destroy(); }
     CH[id] = new Chart(document.getElementById(id), cfg);
@@ -329,10 +386,12 @@ function showDashboard(key){
   });
 }
 
+// ---------- Boot ----------
 window.addEventListener('load', ()=>{
   initMap();
-  // default sync select & map
-  updateHeat(areaSelect.value);
+  const areaDD = initAreaDropdown();
+  areaDD.onChange(val => updateHeat(val));
+  document.getElementById('goBtn').addEventListener('click', ()=> showDashboard(areaDD.value));
 });
 </script>
 </body>
