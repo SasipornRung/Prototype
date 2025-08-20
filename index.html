@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PropDecoded • Minimal (JSON)</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Thai",sans-serif;background:#f4fbf7;color:#103b34}
+  .wrap{max-width:960px;margin:32px auto;padding:0 16px}
+  h1{margin:0 0 16px}
+  .seg{display:inline-flex;gap:8px;border:2px solid #2e7d5b;border-radius:999px;padding:6px;background:#fff}
+  .seg button{all:unset;cursor:pointer;font-weight:700;padding:8px 14px;border-radius:999px;color:#2e7d5b}
+  .seg button.active{background:#e8f4ed;color:#103b34}
+  .panel{margin-top:16px;background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+  .badge{display:inline-block;background:#d7eee3;color:#0f5244;border-radius:999px;padding:6px 10px;font-weight:700;font-size:13px}
+  .meter{height:10px;border-radius:999px;background:#e9f2ee;margin:12px 0;overflow:hidden}
+  .meter>span{display:block;height:100%;background:linear-gradient(90deg,#cfe9dd,#f5e29e);width:40%}
+  .muted{color:#6b7e80}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ทดสอบสลับเลนส์ (อ่านไฟล์ JSON)</h1>
+
+  <!-- ปุ่มสลับเลนส์ -->
+  <div class="seg">
+    <button id="lens-tenant"   class="active" aria-selected="true">ผู้เช่า</button>
+    <button id="lens-investor" aria-selected="false">นักลงทุน</button>
+    <button id="lens-renovator" aria-selected="false">รีโนเวท/ดีเวลอป</button>
+  </div>
+
+  <!-- แผงข้อมูล -->
+  <div class="panel">
+    <div class="badge" id="lensTag">ผู้เช่า</div>
+    <h2 id="title" style="margin:8px 0 4px">วัฒนา</h2>
+    <div id="subtitle" class="muted">ภาพรวมสำหรับผู้อยู่อาศัย</div>
+
+    <div class="meter"><span id="meterFill" style="width:62%"></span></div>
+
+    <div class="muted" style="margin:6px 0"><strong id="kpiLeftTitle">ข้อมูลย่อ:</strong>
+      <span id="kpiLeftDesc">CBD ~ 18 นาที • BTS ~ 6 นาที</span>
+    </div>
+    <div class="muted" style="margin:6px 0"><strong id="kpiRightTitle">รีวิวล่าสุด:</strong>
+      <span id="kpiRightDesc">“เงียบช่วงกลางคืน เดินไปสถานีได้”</span>
+    </div>
+
+    <p id="detailsText" class="muted" style="margin-top:10px">
+      • ตัวอย่างข้อความเริ่มต้น
+    </p>
+  </div>
+</div>
+
+<script>
+  // อ่านไฟล์ JSON ตามชื่อเลนส์
+  async function loadLens(lens){
+    // ป้องกันแคช: เติมเวอร์ชันท้าย URL
+    const v = 'v=' + Date.now();
+    const url = `${lens}.json?${v}`;
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error('โหลดไม่ได้: ' + url);
+    return res.json();
+  }
+
+  // element อ้างอิง
+  const btns = {
+    tenant:   document.getElementById('lens-tenant'),
+    investor: document.getElementById('lens-investor'),
+    renovator:document.getElementById('lens-renovator')
+  };
+  const lensTag = document.getElementById('lensTag');
+  const subtitle = document.getElementById('subtitle');
+  const meterFill = document.getElementById('meterFill');
+  const kpiLeftDesc = document.getElementById('kpiLeftDesc');
+  const kpiRightTitle = document.getElementById('kpiRightTitle');
+  const kpiRightDesc = document.getElementById('kpiRightDesc');
+  const detailsText = document.getElementById('detailsText');
+
+  // ใส่ค่า UI จาก JSON
+  async function applyLens(lens){
+    try{
+      const c = await loadLens(lens);
+
+      // toggle ปุ่ม
+      Object.entries(btns).forEach(([id, b])=>{
+        b.classList.toggle('active', id===lens);
+        b.setAttribute('aria-selected', id===lens ? 'true' : 'false');
+      });
+
+      // อัปเดตค่า
+      lensTag.textContent  = c.tag || '';
+      subtitle.textContent = c.subtitle || '';
+      meterFill.style.width = Math.round((c.meter||0)*100) + '%';
+      kpiLeftDesc.textContent = c.kpiLeftDesc || '';
+      kpiRightTitle.textContent= c.kpiRightTitle || '';
+      kpiRightDesc.textContent = c.kpiRightDesc || '';
+      detailsText.innerHTML    = c.detailsText || '';
+
+      // จำเลนส์ล่าสุด
+      localStorage.setItem('pd_lens', lens);
+    }catch(err){
+      console.error(err);
+      alert('โหลดข้อมูลไม่สำเร็จ: ' + lens + '.json');
+    }
+  }
+
+  // bind events
+  btns.tenant.addEventListener('click', ()=>applyLens('tenant'));
+  btns.investor.addEventListener('click', ()=>applyLens('investor'));
+  btns.renovator.addEventListener('click', ()=>applyLens('renovator'));
+
+  // เริ่มจากเลนส์ที่เคยเลือกไว้ (หรือ 'tenant')
+  applyLens(localStorage.getItem('pd_lens') || 'tenant');
+</script>
