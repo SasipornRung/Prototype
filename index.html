@@ -298,6 +298,25 @@ window.addEventListener('load', () => {
   if (!m) log('Map failed to init');
   applyLens(localStorage.getItem('pd_lens') || 'tenant');
 });
+  <!-- Quick link to Investor Lens (auto-insert) -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // สร้างปุ่มใหม่แบบง่าย ๆ
+  const link = document.createElement('a');
+  link.href = 'index_investor.html?v=10';
+  link.textContent = 'ไปหน้า “นักลงทุน (ใหม่)”';
+  link.style.cssText = `
+    display:inline-block;margin:10px 0 0; padding:10px 14px;
+    border-radius:999px; font-weight:700; text-decoration:none;
+    background:#DDF3EE; color:#14594F; border:2px solid transparent;
+  `;
+
+  // หาที่วาง: ถ้ามีแถบสลับเลนส์ให้วางต่อท้าย ไม่งั้นวางบนสุดของ .container
+  const lensBar = document.querySelector('.lens-bar') || document.querySelector('.segbar');
+  const container = document.querySelector('.container') || document.body;
+
+  (lensBar || container).appendChild(link);
+});
 </script>
 </body>
 </html>
